@@ -24,7 +24,7 @@ if __name__ == "__main__":
             f"{Fore.GREEN}Installed models: {Fore.CYAN}{installed_models}{Style.RESET_ALL}"
         )
         exit(1)
-    docs = load_documents_from_pdfs()
+    docs = load_documents_from_pdfs(specific_files=args.files)
     if not docs:
         print(f"{Fore.RED}No documents loaded. Exiting.{Style.RESET_ALL}")
         exit(1)
