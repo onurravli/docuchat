@@ -6,24 +6,41 @@ from lib.pdf.load_pdf_text import load_pdf_text
 from lib.config import config
 
 
-def load_documents_from_pdfs(pdf_dir="pdfs"):
-    # Initialize colorama for Windows compatibility
+def load_documents_from_pdfs(pdf_dir="pdfs", specific_files=None):
     init()
 
     docs = []
-    if not os.path.exists(pdf_dir):
-        if config["logging"]:
-            print(
-                f"{Fore.RED}Directory '{pdf_dir}' not found. Please create it and add your PDF files.{Style.RESET_ALL}"
-            )
-        return docs
 
-    # Get list of PDF files first
-    pdf_files = [f for f in os.listdir(pdf_dir) if f.lower().endswith(".pdf")]
+    if specific_files:
+        pdf_files = []
+        for file_path in specific_files:
+            if not os.path.exists(file_path):
+                if config["logging"]:
+                    print(f"{Fore.RED}File '{file_path}' not found.{Style.RESET_ALL}")
+                continue
+            if not file_path.lower().endswith(".pdf"):
+                if config["logging"]:
+                    print(
+                        f"{Fore.RED}File '{file_path}' is not a PDF file.{Style.RESET_ALL}"
+                    )
+                continue
+            pdf_files.append(file_path)
+    else:
+        if not os.path.exists(pdf_dir):
+            if config["logging"]:
+                print(
+                    f"{Fore.RED}Directory '{pdf_dir}' not found. Please create it and add your PDF files.{Style.RESET_ALL}"
+                )
+            return docs
+        pdf_files = [
+            os.path.join(pdf_dir, f)
+            for f in os.listdir(pdf_dir)
+            if f.lower().endswith(".pdf")
+        ]
 
     if not pdf_files:
         if config["logging"]:
-            print(f"{Fore.RED}No PDF files found in the directory.{Style.RESET_ALL}")
+            print(f"{Fore.RED}No PDF files found.{Style.RESET_ALL}")
         exit(1)
 
     if config["logging"]:
@@ -32,20 +49,18 @@ def load_documents_from_pdfs(pdf_dir="pdfs"):
         )
 
     if config["logging"]:
-        for filename in tqdm(
+        for pdf_path in tqdm(
             pdf_files,
             desc=f"{Fore.BLACK}Loading PDFs{Style.RESET_ALL}",
             unit="file",
             ncols=80,
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
         ):
-            pdf_path = os.path.join(pdf_dir, filename)
             text = load_pdf_text(pdf_path)
             if text:
                 docs.append(text)
     else:
-        for filename in pdf_files:
-            pdf_path = os.path.join(pdf_dir, filename)
+        for pdf_path in pdf_files:
             text = load_pdf_text(pdf_path)
             if text:
                 docs.append(text)
