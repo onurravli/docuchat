@@ -32,5 +32,12 @@ def parse_args():
         action="store_true",
         help="Enable streaming (default: True)",
     )
+    parser.add_argument(
+        "--files",
+        "-f",
+        nargs="+",
+        type=str,
+        help="Specific PDF files to process instead of the pdfs directory",
+    )
     args = parser.parse_args()
     return args
